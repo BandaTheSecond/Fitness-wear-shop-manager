@@ -166,6 +166,7 @@ const Navbar = () => {
       </div>
       
       {/* Mobile menu */}
+      
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
