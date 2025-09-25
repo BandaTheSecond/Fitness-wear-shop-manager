@@ -13,8 +13,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 # Configure database URI - use SQLite for both development and production
 if os.getenv('FLASK_ENV') == 'production':
-    # For production on Render, use a persistent volume path
-    db_path = os.path.join('/opt/render/project/src/instance', 'fitness_shop.db')
+    # For production on Render, use the instance folder in the project directory
+    instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+    os.makedirs(instance_path, exist_ok=True)
+    db_path = os.path.join(instance_path, 'fitness_shop.db')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 else:
     # For development, use the instance folder
