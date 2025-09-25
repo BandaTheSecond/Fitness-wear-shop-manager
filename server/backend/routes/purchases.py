@@ -4,6 +4,7 @@ from models import db, Purchase, PurchaseItem, Product, User, UserRole, Inventor
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy.orm import joinedload
+from utils import get_current_user
 
 purchases_bp = Blueprint('purchases', __name__)
 
@@ -11,8 +12,9 @@ purchases_bp = Blueprint('purchases', __name__)
 @jwt_required()
 def get_purchases():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)
@@ -23,7 +25,7 @@ def get_purchases():
         elif user.role == UserRole.STAFF:
             query = Purchase.query.options(joinedload(Purchase.user))
         else:  # Customer
-            query = Purchase.query.filter_by(user_id=user_id).options(joinedload(Purchase.user))
+            query = Purchase.query.filter_by(user_id=user.id).options(joinedload(Purchase.user))
         
         purchases = query.order_by(Purchase.created_at.desc()).paginate(
             page=page, per_page=per_page, error_out=False
@@ -44,8 +46,9 @@ def get_purchases():
 @jwt_required()
 def get_purchase(purchase_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         purchase = Purchase.query.options(joinedload(Purchase.user)).get(purchase_id)
         if not purchase:
@@ -145,10 +148,11 @@ def create_purchase():
 @jwt_required()
 def update_purchase(purchase_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
+        if user.role not in [UserRole.STAFF, UserRole.ADMIN]:
             return jsonify({'error': 'Insufficient permissions'}), 403
         
         purchase = Purchase.query.get(purchase_id)
@@ -182,15 +186,16 @@ def update_purchase(purchase_id):
 @jwt_required()
 def cancel_purchase(purchase_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         purchase = Purchase.query.get(purchase_id)
         if not purchase:
             return jsonify({'error': 'Purchase not found'}), 404
         
         # Check permissions
-        if user.role == UserRole.CUSTOMER and purchase.user_id != user_id:
+        if user.role == UserRole.CUSTOMER and purchase.user_id != user.id:
             return jsonify({'error': 'Insufficient permissions'}), 403
         
         if purchase.status == 'cancelled':

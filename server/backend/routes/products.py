@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Product, Category, Supplier, User, UserRole
 from datetime import datetime
 from sqlalchemy import or_, and_
+from utils import get_staff_user, get_admin_user
 
 products_bp = Blueprint('products', __name__)
 
@@ -94,11 +95,9 @@ def get_product(product_id):
 @jwt_required()
 def create_product():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         
@@ -150,11 +149,9 @@ def create_product():
 @jwt_required()
 def update_product(product_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         product = Product.query.get(product_id)
         
@@ -213,11 +210,9 @@ def update_product(product_id):
 @jwt_required()
 def delete_product(product_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role != UserRole.ADMIN:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_admin_user()
+        if error_response:
+            return error_response
         
         product = Product.query.get(product_id)
         

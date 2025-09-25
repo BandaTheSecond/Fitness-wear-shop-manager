@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, UserRole
 from datetime import datetime
+from utils import get_current_user
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -40,7 +41,7 @@ def register():
         db.session.commit()
         
         # Create access token
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
         
         return jsonify({
             'message': 'User registered successfully',
@@ -72,7 +73,7 @@ def login():
             return jsonify({'error': 'Account is deactivated'}), 401
         
         # Create access token
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
         
         return jsonify({
             'message': 'Login successful',
@@ -87,11 +88,9 @@ def login():
 @jwt_required()
 def get_profile():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         return jsonify({'user': user.to_dict()}), 200
         
@@ -102,11 +101,9 @@ def get_profile():
 @jwt_required()
 def update_profile():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         
@@ -142,11 +139,9 @@ def update_profile():
 @jwt_required()
 def change_password():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
+        user, error_response = get_current_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         

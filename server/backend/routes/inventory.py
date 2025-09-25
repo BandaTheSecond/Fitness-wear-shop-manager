@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Inventory, Product, User, UserRole
 from datetime import datetime
+from sqlalchemy import and_
+from utils import get_staff_user
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -9,11 +11,9 @@ inventory_bp = Blueprint('inventory', __name__)
 @jwt_required()
 def get_inventory():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)
@@ -47,11 +47,9 @@ def get_inventory():
 @jwt_required()
 def get_product_inventory(product_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         inventory = Inventory.query.filter_by(product_id=product_id).first()
         if not inventory:
@@ -66,11 +64,9 @@ def get_product_inventory(product_id):
 @jwt_required()
 def create_inventory():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         
@@ -109,11 +105,9 @@ def create_inventory():
 @jwt_required()
 def update_inventory(product_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         inventory = Inventory.query.filter_by(product_id=product_id).first()
         if not inventory:
@@ -144,11 +138,9 @@ def update_inventory(product_id):
 @jwt_required()
 def restock_inventory(product_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         inventory = Inventory.query.filter_by(product_id=product_id).first()
         if not inventory:
@@ -178,11 +170,9 @@ def restock_inventory(product_id):
 @jwt_required()
 def get_stock_alerts():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         # Get low stock items
         low_stock = Inventory.query.join(Product).filter(

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Category, User, UserRole
 from datetime import datetime
+from utils import get_staff_user, get_admin_user
 
 categories_bp = Blueprint('categories', __name__)
 
@@ -29,11 +30,9 @@ def get_category(category_id):
 @jwt_required()
 def create_category():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         
@@ -66,11 +65,9 @@ def create_category():
 @jwt_required()
 def update_category(category_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         category = Category.query.get(category_id)
         if not category:
@@ -107,11 +104,9 @@ def update_category(category_id):
 @jwt_required()
 def delete_category(category_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role != UserRole.ADMIN:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_admin_user()
+        if error_response:
+            return error_response
         
         category = Category.query.get(category_id)
         if not category:

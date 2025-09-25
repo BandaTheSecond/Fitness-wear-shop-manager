@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Supplier, User, UserRole
 from datetime import datetime
+from utils import get_staff_user, get_admin_user
 
 suppliers_bp = Blueprint('suppliers', __name__)
 
@@ -9,11 +10,9 @@ suppliers_bp = Blueprint('suppliers', __name__)
 @jwt_required()
 def get_suppliers():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         suppliers = Supplier.query.filter_by(is_active=True).all()
         return jsonify({
@@ -26,11 +25,9 @@ def get_suppliers():
 @jwt_required()
 def get_supplier(supplier_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         supplier = Supplier.query.get(supplier_id)
         if not supplier:
@@ -43,11 +40,9 @@ def get_supplier(supplier_id):
 @jwt_required()
 def create_supplier():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         data = request.get_json()
         
@@ -80,11 +75,9 @@ def create_supplier():
 @jwt_required()
 def update_supplier(supplier_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         supplier = Supplier.query.get(supplier_id)
         if not supplier:
@@ -125,11 +118,9 @@ def update_supplier(supplier_id):
 @jwt_required()
 def delete_supplier(supplier_id):
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role != UserRole.ADMIN:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        user, error_response = get_admin_user()
+        if error_response:
+            return error_response
         
         supplier = Supplier.query.get(supplier_id)
         if not supplier:
