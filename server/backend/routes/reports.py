@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Purchase, PurchaseItem, Product, Inventory, User, UserRole
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc, and_
+from utils import get_staff_user
 
 reports_bp = Blueprint('reports', __name__)
 
@@ -10,11 +11,10 @@ reports_bp = Blueprint('reports', __name__)
 @jwt_required()
 def get_sales_report():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        # Get current user with staff/admin permissions
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
@@ -98,11 +98,10 @@ def get_sales_report():
 @jwt_required()
 def get_inventory_report():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        # Get current user with staff/admin permissions
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         # Inventory summary
         total_products = Product.query.filter_by(is_active=True).count()
@@ -150,11 +149,10 @@ def get_inventory_report():
 @jwt_required()
 def get_profit_report():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        # Get current user with staff/admin permissions
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
@@ -206,11 +204,10 @@ def get_profit_report():
 @jwt_required()
 def get_dashboard_data():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        
-        if not user or user.role not in [UserRole.STAFF, UserRole.ADMIN]:
-            return jsonify({'error': 'Insufficient permissions'}), 403
+        # Get current user with staff/admin permissions
+        user, error_response = get_staff_user()
+        if error_response:
+            return error_response
         
         # Today's sales
         today = datetime.utcnow().date()
