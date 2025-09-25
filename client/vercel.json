@@ -9,6 +9,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "@vite_api_url"
+    "VITE_API_URL": "https://fitness-wear-shop-manager-829d.onrender.com/api"
   }
 }
