@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, JWTError
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -35,7 +35,10 @@ jwt = JWTManager(app)
 # Configure CORS for production
 if os.getenv('FLASK_ENV') == 'production':
     CORS(app, 
-         origins=[os.getenv('FRONTEND_URL', 'https://your-frontend.vercel.app')],
+         origins=[
+             os.getenv('FRONTEND_URL', 'https://fitness-wear-shop-manager-bnrd.vercel.app'),
+             'https://fitness-wear-shop-manager-bnrd.vercel.app'  # Fallback for your actual frontend URL
+         ],
          allow_headers=['Content-Type', 'Authorization'],
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
          supports_credentials=True)
@@ -68,6 +71,51 @@ app.register_blueprint(reports_bp, url_prefix='/api/reports')
 def health_check():
     return jsonify({'status': 'healthy', 'message': 'Fitness Wear Shop API is running'})
 
+@app.route('/api/debug')
+def debug_info():
+    """Debug endpoint to check JWT configuration and database status"""
+    try:
+        # Check if database is accessible
+        from models import User
+        user_count = User.query.count()
+        
+        return jsonify({
+            'status': 'debug_info',
+            'jwt_secret_configured': bool(app.config.get('JWT_SECRET_KEY')),
+            'database_accessible': True,
+            'user_count': user_count,
+            'flask_env': os.getenv('FLASK_ENV', 'development')
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'debug_info',
+            'jwt_secret_configured': bool(app.config.get('JWT_SECRET_KEY')),
+            'database_accessible': False,
+            'error': str(e),
+            'flask_env': os.getenv('FLASK_ENV', 'development')
+        })
+
+# JWT Error Handlers
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Token has expired'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({'error': 'Invalid token'}), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return jsonify({'error': 'Authorization token is required'}), 401
+
+@jwt.needs_fresh_token_loader
+def token_not_fresh_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Fresh token required'}), 401
+
+@jwt.revoked_token_loader
+def revoked_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Token has been revoked'}), 401
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
@@ -75,6 +123,10 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(422)
+def unprocessable_entity(error):
+    return jsonify({'error': 'Unprocessable entity - validation failed'}), 422
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
