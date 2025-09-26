@@ -1,11 +1,5 @@
 # Fitness Wear Shop Management System
 
-## Deployed Link: 
-https://fitness-wear-shop-manager-bnrd.vercel.app/
-
-to log in to admin: admin@fitnesswear.com
-password: SecureAdmin2024!
-
 A comprehensive full-stack web application for managing a fitness apparel retail business. This system provides inventory management, sales processing, supplier relationships, and detailed reporting capabilities.
 
 ## Features
@@ -154,23 +148,23 @@ After running the seed script, you can use these accounts:
 ### Admin Account
 - **Username:** `admin`
 - **Email:** `admin@fitnesswear.com`
-- **Password:** `SecureAdmin2024!`
+- **Password:** `admin123`
 - **Role:** Administrator
 
 ### Staff Account
 - **Username:** `staff1`
 - **Email:** `staff1@fitnesswear.com`
-- **Password:** `SecureStaff2024!`
+- **Password:** `staff123`
 - **Role:** Staff
 
 ### Customer Accounts
 - **Username:** `customer1`
 - **Email:** `customer1@example.com`
-- **Password:** `SecureCustomer2024!`
+- **Password:** `customer123`
 - **Role:** Customer
 - **Username:** `customer2`
 - **Email:** `customer2@example.com`
-- **Password:** `SecureBuyer2024!`
+- **Password:** `customer123`
 - **Role:** Customer
 
 ## API Endpoints
