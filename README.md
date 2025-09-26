@@ -1,6 +1,6 @@
 # Fitness Wear Shop Management System
 
-🌐 **Live Demo:** [https://fitness-wear-shop-manager-bnrd.vercel.app/](https://fitness-wear-shop-manager-bnrd.vercel.app/)
+🌐 **Live Demo:** [https://fitness-wear-shop-manager-bnrd.vercel.app/]
 
 A comprehensive full-stack web application for managing a fitness apparel retail business. This system provides inventory management, sales processing, supplier relationships, and detailed reporting capabilities.
 
