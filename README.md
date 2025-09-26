@@ -150,23 +150,23 @@ After running the seed script, you can use these accounts:
 ### Admin Account
 - **Username:** `admin`
 - **Email:** `admin@fitnesswear.com`
-- **Password:** `admin123`
+- **Password:** `SecureAdmin2024!`
 - **Role:** Administrator
 
 ### Staff Account
 - **Username:** `staff1`
 - **Email:** `staff1@fitnesswear.com`
-- **Password:** `staff123`
+- **Password:** `SecureStaff2024!`
 - **Role:** Staff
 
 ### Customer Accounts
 - **Username:** `customer1`
 - **Email:** `customer1@example.com`
-- **Password:** `customer123`
+- **Password:** `SecureCustomer2024!`
 - **Role:** Customer
 - **Username:** `customer2`
 - **Email:** `customer2@example.com`
-- **Password:** `customer123`
+- **Password:** `SecureBuyer2024!`
 - **Role:** Customer
 
 ## API Endpoints
