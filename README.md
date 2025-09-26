@@ -3,6 +3,9 @@
 ## Deployed Link: 
 https://fitness-wear-shop-manager-bnrd.vercel.app/
 
+to log in to admin: admin@fitnesswear.com
+password: SecureAdmin2024!
+
 A comprehensive full-stack web application for managing a fitness apparel retail business. This system provides inventory management, sales processing, supplier relationships, and detailed reporting capabilities.
 
 ## Features
